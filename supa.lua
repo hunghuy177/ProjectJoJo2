@@ -43,18 +43,21 @@ local function grabitem(item)
 end
 
 -- Create buttons for each item
-
-local function tpspeitem()
-        if item and humanoidRootPart and item:IsA("") then
-            humanoidRootPart.CFrame = item.CFrame -- Teleport
-            wait(1)
-            grabitem(item.Parent or item) -- Grab the item
-        else
-            Rayfield:Notify({
-                Title = "Item Not Found",
-                Content = "Could not find or interact with ",
-                Duration = 2,
-            })
-        end
-    end,
+for itemName, item in pairs(items) do
+    TeleportTab:CreateButton({
+        Name = itemName,
+        Callback = function()
+            if item and humanoidRootPart and item:IsA("BasePart") then
+                humanoidRootPart.CFrame = item.CFrame -- Teleport
+                wait(1)
+                grabitem(item.Parent or item) -- Grab the item
+            else
+                Rayfield:Notify({
+                    Title = "Item Not Found",
+                    Content = "Could not find or interact with " .. itemName,
+                    Duration = 2,
+                })
+            end
+        end,
+    })
 end
