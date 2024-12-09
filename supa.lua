@@ -11,18 +11,21 @@ local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
--- Locate all items in the workspace.Items folder
-local itemsFolder = workspace:FindFirstChild("Items")
-local items = {}
+-- Function to dynamically fetch items from workspace.Items
+local function updateItems()
+    local itemsFolder = workspace:FindFirstChild("Items")
+    local items = {}
 
-if itemsFolder then
-    for _, item in pairs(itemsFolder:GetChildren()) do
-        if item:IsA("Tool") then
-            items[item.Name] = item:FindFirstChild("Handle") -- Handle for tools
-        elseif item:IsA("BasePart") then
-            items[item.Name] = item -- Non-tool items
+    if itemsFolder then
+        for _, item in pairs(itemsFolder:GetChildren()) do
+            if item:IsA("Tool") then
+                items[item.Name] = item:FindFirstChild("Handle") -- Handle for tools
+            elseif item:IsA("BasePart") then
+                items[item.Name] = item -- Non-tool items
+            end
         end
     end
+    return items
 end
 
 -- Function to interact with the item
@@ -42,22 +45,27 @@ local function grabitem(item)
     end
 end
 
--- Create buttons for each item
-for itemName, item in pairs(items) do
-    TeleportTab:CreateButton({
-        Name = itemName,
-        Callback = function()
-            if item and humanoidRootPart and item:IsA("BasePart") then
-                humanoidRootPart.CFrame = item.CFrame -- Teleport
-                wait(1)
-                grabitem(item.Parent or item) -- Grab the item
-            else
-                Rayfield:Notify({
-                    Title = "Item Not Found",
-                    Content = "Could not find or interact with " .. itemName,
-                    Duration = 2,
-                })
-            end
-        end,
-    })
-end
+-- Update items regularly and create buttons
+game:GetService("RunService").Heartbeat:Connect(function()
+    local items = updateItems() -- Get updated list of items
+    TeleportTab:ClearButtons()  -- Clear previous buttons
+    
+    for itemName, item in pairs(items) do
+        TeleportTab:CreateButton({
+            Name = itemName,
+            Callback = function()
+                if item and humanoidRootPart and item:IsA("BasePart") then
+                    humanoidRootPart.CFrame = item.CFrame -- Teleport
+                    wait(1)
+                    grabitem(item.Parent or item) -- Grab the item
+                else
+                    Rayfield:Notify({
+                        Title = "Item Not Found",
+                        Content = "Could not find or interact with " .. itemName,
+                        Duration = 2,
+                    })
+                end
+            end,
+        })
+    end
+end)
