@@ -28,32 +28,6 @@ local function updateItems()
     end
 end
 
--- Dropdown to show all items
-local Dropdown = TeleportTab:CreateDropdown({
-    Name = "Items Dropdown",
-    Options = {},  -- Start with an empty list
-    CurrentOption = {},
-    MultipleOptions = false,
-    Flag = "ItemsDropdown",
-    Callback = function(Options)
-        -- Teleport to selected item when chosen
-        local selectedItemName = Options[1]
-        local selectedItem = items[selectedItemName]
-        
-        if selectedItem then
-            humanoidRootPart.CFrame = selectedItem.CFrame -- Teleport to item
-            wait(1)
-            grabitem(selectedItem)  -- Interact with the item
-        else
-            Rayfield:Notify({
-                Title = "Item Not Found",
-                Content = "The item you selected is not available.",
-                Duration = 2,
-            })
-        end
-    end,
-})
-
 -- Function to grab item
 local function grabitem(item)
     local clickBox = item:FindFirstChild("ClickBox") or item:FindFirstChild("Handle")
@@ -71,20 +45,27 @@ local function grabitem(item)
     end
 end
 
--- Button to refresh the dropdown options
-TeleportTab:CreateButton({
-    Name = "Refresh Items",
-    Callback = function()
-        updateItems()  -- Refresh the item list
-        local options = {}
+-- Dropdown menu for items
+local Dropdown = TeleportTab:CreateDropdown({
+    Name = "Items List",
+    Options = {"Dio Bone", "Hamon Breather", "Requiem Arrow", "Rokakaka Fruit", "Stand Arrow", "Steel Ball", "Stone Rokakaka", "Vampire Mask", "Aja Mask", "Corpse Part", "Dio Diary", "New Rokakaka", "Sinners Soul", "Cash Sack"},
+    MultipleOptions = true,
+    Callback = function(Options)
+        -- Find the selected item and teleport
+        local selectedItemName = Options[1]
+        local selectedItem = items[selectedItemName]
         
-        -- Update the dropdown options with current items
-        for itemName, _ in pairs(items) do
-            table.insert(options, itemName)
+        if selectedItem then
+            humanoidRootPart.CFrame = selectedItem.CFrame -- Teleport to item
+            wait(1)
+            grabitem(selectedItem)  -- Interact with the item
+        else
+            Rayfield:Notify({
+                Title = "Item Not Found",
+                Content = "The item you selected is not available.",
+                Duration = 2,
+            })
         end
-        
-        -- Update the dropdown with new options
-        Dropdown:Set(options)
     end,
 })
 
