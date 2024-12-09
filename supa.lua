@@ -45,46 +45,36 @@ local function grabitem(item)
     end
 end
 
--- Keep track of the previously created items to check for changes
-local lastItems = {}
+-- Update and create buttons only when user presses button
+local function createItemButtons()
+    local items = updateItems() -- Get the current items
 
--- Update items regularly and create buttons if items change
-game:GetService("RunService").Heartbeat:Connect(function()
-    local items = updateItems() -- Get updated list of items
-
-    -- Check if items have changed (add new or removed items)
-    local itemsChanged = false
+    -- Create new buttons for the current items
     for itemName, item in pairs(items) do
-        if not lastItems[itemName] then
-            itemsChanged = true
-            break
-        end
+        TeleportTab:CreateButton({
+            Name = itemName,
+            Callback = function()
+                if item and humanoidRootPart and item:IsA("BasePart") then
+                    humanoidRootPart.CFrame = item.CFrame -- Teleport
+                    wait(1)
+                    grabitem(item.Parent or item) -- Grab the item
+                else
+                    Rayfield:Notify({
+                        Title = "Item Not Found",
+                        Content = "Could not find or interact with " .. itemName,
+                        Duration = 2,
+                    })
+                end
+            end,
+        })
     end
+end
 
-    if itemsChanged then
-        TeleportTab:ClearButtons()  -- Clear previous buttons
+-- Button to refresh and add new items
+TeleportTab:CreateButton({
+    Name = "Refresh Items",
+    Callback = createItemButtons,
+})
 
-        -- Create new buttons
-        for itemName, item in pairs(items) do
-            TeleportTab:CreateButton({
-                Name = itemName,
-                Callback = function()
-                    if item and humanoidRootPart and item:IsA("BasePart") then
-                        humanoidRootPart.CFrame = item.CFrame -- Teleport
-                        wait(1)
-                        grabitem(item.Parent or item) -- Grab the item
-                    else
-                        Rayfield:Notify({
-                            Title = "Item Not Found",
-                            Content = "Could not find or interact with " .. itemName,
-                            Duration = 2,
-                        })
-                    end
-                end,
-            })
-        end
-    end
-
-    -- Update the lastItems table
-    lastItems = items
-end)
+-- Call createItemButtons once at the start to display initial items
+createItemButtons()
