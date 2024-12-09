@@ -67,13 +67,13 @@ local function tpspeitem(item)
 end
 
 -- Create buttons for each item dynamically
-local items = {
+local itemsList = {
     "Requiem Arrow", "Hamon Breather", "Rokakaka Fruit", "Stone Rokakaka", "New Rokakaka",
     "Corpse Part", "Sinner Soul", "Steel Ball", "Dio Diary", "Aja Mask", "Vampire Mask",
     "Dio Bone", "Stand Arrow", "Cash Sack"
 }
 
-for _, itemName in pairs(items) do
+for _, itemName in pairs(itemsList) do
     local item = itemsFolder:FindFirstChild(itemName) -- Get the item from the folder
     if item then
         TeleportTab:CreateButton({
