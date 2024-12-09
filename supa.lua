@@ -55,9 +55,8 @@ end
 local Dropdown = TeleportTab:CreateDropdown({
     Name = "Items List",
     Options = {"Dio Bone", "Hamon Breather", "Requiem Arrow", "Rokakaka Fruit", "Stand Arrow", "Steel Ball", "Stone Rokakaka", "Vampire Mask", "Aja Mask", "Corpse Part", "Dio Diary", "New Rokakaka", "Sinners Soul", "Cash Sack"},
-    CurrentOption = {"Stand Arrow"},
     Callback = function(Options)
-        local selectedItemName = Options
+        local selectedItemName = Options  -- Use the first option as the selected item
         local selectedItem = items[selectedItemName]
 
         if selectedItem then
