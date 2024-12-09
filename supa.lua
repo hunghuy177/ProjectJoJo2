@@ -44,17 +44,20 @@ end
 
 -- Create buttons for each item
 for itemName, item in pairs(items) do
-    Callback = function()
-        if item and humanoidRootPart and item:IsA("BasePart") then
-            humanoidRootPart.CFrame = item.CFrame -- Teleport
-            wait(1)
-            grabitem(item.Parent or item) -- Grab the item
-        else
-            Rayfield:Notify({
-                Title = "Item Not Found",
-                Content = "Could not find or interact with ".
-                Duration = 2,
-            })
-        end
-    end,
+    TeleportTab:CreateButton({
+        Name = itemName,
+        Callback = function()
+            if item and humanoidRootPart and item:IsA("BasePart") then
+                humanoidRootPart.CFrame = item.CFrame -- Teleport
+                wait(1)
+                grabitem(item.Parent or item) -- Grab the item
+            else
+                Rayfield:Notify({
+                    Title = "Item Not Found",
+                    Content = "Could not find or interact with " .. itemName,
+                    Duration = 2,
+                })
+            end
+        end,
+    })
 end
