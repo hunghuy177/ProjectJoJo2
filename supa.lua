@@ -14,7 +14,7 @@ local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 local itemsFolder = workspace:FindFirstChild("Items")
 local items = {}
 
--- Function to update items dynamically
+-- Function to update the items list
 local function updateItems()
     items = {}
     if itemsFolder then
@@ -28,7 +28,7 @@ local function updateItems()
     end
 end
 
--- Function to grab item
+-- Function to grab the item
 local function grabitem(item)
     local clickBox = item:FindFirstChild("ClickBox") or item:FindFirstChild("Handle")
     if clickBox then
@@ -45,20 +45,24 @@ local function grabitem(item)
     end
 end
 
--- Dropdown menu for items
+-- Create Dropdown for items
 local Dropdown = TeleportTab:CreateDropdown({
     Name = "Items List",
-    Options = {"Dio Bone", "Hamon Breather", "Requiem Arrow", "Rokakaka Fruit", "Stand Arrow", "Steel Ball", "Stone Rokakaka", "Vampire Mask", "Aja Mask", "Corpse Part", "Dio Diary", "New Rokakaka", "Sinners Soul", "Cash Sack"},
-    MultipleOptions = true,
+    Options = {},
+    MultipleOptions = false,
+    CurrentOption = {"Stand Arrow"},
     Callback = function(Options)
-        -- Find the selected item and teleport
-        local selectedItemName = Options
+        local selectedItemName = Options[1]
         local selectedItem = items[selectedItemName]
-        
+
         if selectedItem then
-            humanoidRootPart.CFrame = selectedItem.CFrame -- Teleport to item
+            if selectedItem:IsA("BasePart") then
+                humanoidRootPart.CFrame = selectedItem.CFrame
+            elseif selectedItem:IsA("Tool") and selectedItem:FindFirstChild("Handle") then
+                humanoidRootPart.CFrame = selectedItem.Handle.CFrame
+            end
             wait(1)
-            grabitem(selectedItem)  -- Interact with the item
+            grabitem(selectedItem)
         else
             Rayfield:Notify({
                 Title = "Item Not Found",
@@ -69,10 +73,12 @@ local Dropdown = TeleportTab:CreateDropdown({
     end,
 })
 
--- Initial population of dropdown with items
-updateItems()
-local initialOptions = {}
-for itemName, _ in pairs(items) do
-    table.insert(initialOptions, itemName)
-end
-Dropdown:Set(initialOptions)
+-- Continuously update the items in the dropdown
+game:GetService("RunService").Heartbeat:Connect(function()
+    updateItems()
+    local itemNames = {}
+    for name in pairs(items) do
+        table.insert(itemNames, name)
+    end
+    Dropdown:Set(itemNames)  -- Update the dropdown options dynamically
+end)
