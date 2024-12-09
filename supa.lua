@@ -45,36 +45,50 @@ local function grabitem(item)
     end
 end
 
--- Update and create buttons only when user presses button
-local function createItemButtons()
-    local items = updateItems() -- Get the current items
+-- Function to create/update dropdown for items
+local function createItemDropdown()
+    -- Create a dropdown with current items
+    local items = updateItems()
 
-    -- Create new buttons for the current items
-    for itemName, item in pairs(items) do
-        TeleportTab:CreateButton({
-            Name = itemName,
-            Callback = function()
-                if item and humanoidRootPart and item:IsA("BasePart") then
-                    humanoidRootPart.CFrame = item.CFrame -- Teleport
-                    wait(1)
-                    grabitem(item.Parent or item) -- Grab the item
-                else
-                    Rayfield:Notify({
-                        Title = "Item Not Found",
-                        Content = "Could not find or interact with " .. itemName,
-                        Duration = 2,
-                    })
-                end
-            end,
-        })
+    -- Clear existing dropdown items if any
+    if TeleportTab:GetDropdown("ItemDropdown") then
+        TeleportTab:GetDropdown("ItemDropdown"):ClearItems()
     end
+
+    local dropdown = TeleportTab:CreateDropdown({
+        Name = "Select Item",
+        Options = table.keys(items), -- Get the names of the items
+        Callback = function(itemName)
+            local item = items[itemName]
+            if item and humanoidRootPart and item:IsA("BasePart") then
+                humanoidRootPart.CFrame = item.CFrame -- Teleport
+                wait(1)
+                grabitem(item.Parent or item) -- Grab the item
+            else
+                Rayfield:Notify({
+                    Title = "Item Not Found",
+                    Content = "Could not find or interact with " .. itemName,
+                    Duration = 2,
+                })
+            end
+        end,
+    })
 end
 
--- Button to refresh and add new items
+-- Button to refresh and update the item dropdown
 TeleportTab:CreateButton({
     Name = "Refresh Items",
-    Callback = createItemButtons,
+    Callback = createItemDropdown,
 })
 
--- Call createItemButtons once at the start to display initial items
-createItemButtons()
+-- Initial call to create the dropdown
+createItemDropdown()
+
+-- Helper function to get table keys
+function table.keys(t)
+    local keys = {}
+    for k in pairs(t) do
+        table.insert(keys, k)
+    end
+    return keys
+end
