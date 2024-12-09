@@ -28,26 +28,22 @@ local function updateItems()
     end
 end
 
--- Function to interact with the item (grab item)
-local function grabitem(item)
-    local clickBox = item:FindFirstChild("ClickBox") or item:FindFirstChild("Handle")
-    if clickBox then
+-- Function to teleport and grab the item
+local function teleportAndGrab(item)
+    if item and item:FindFirstChild("ClickBox") then
+        local clickBox = item.ClickBox
+        -- Calculate 5m distance below the item
+        local targetPosition = item.Position - Vector3.new(0, 5, 0)
+        
+        humanoidRootPart.CFrame = CFrame.new(targetPosition)
+        
+        wait(0.5)
+        
+        -- Fire the click detector to grab the item
         local clickDetector = clickBox:FindFirstChild("ClickDetector")
         if clickDetector then
-            fireclickdetector(clickDetector)  -- Fires the click detector to interact with the item
-        else
-            Rayfield:Notify({
-                Title = "Interaction Failed",
-                Content = "ClickDetector not found on the item.",
-                Duration = 2,
-            })
-        end
-    else
-        Rayfield:Notify({
-            Title = "Interaction Failed",
-            Content = "Cannot find ClickBox or Handle for this item.",
-            Duration = 2,
-        })
+            fireclickdetector(clickDetector)
+        end    
     end
 end
 
@@ -68,7 +64,7 @@ local Dropdown = TeleportTab:CreateDropdown({
                 humanoidRootPart.CFrame = selectedItem.Handle.CFrame
             end
             wait(1)
-            grabitem(selectedItem)  -- Try to interact with the item (grab it)
+            teleportAndGrab(selectedItem)  -- Try to interact with the item (grab it)
         else
             Rayfield:Notify({
                 Title = "Item Not Found",
