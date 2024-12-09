@@ -42,6 +42,10 @@ local function grabitem(item)
     end
 end
 
+
+for itemName, item in pairs(items) do
+    print itemName
+end
 -- Create buttons for each item
 for itemName, item in pairs(items) do
     TeleportTab:CreateButton({
