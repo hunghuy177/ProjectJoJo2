@@ -11,28 +11,19 @@ local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
+-- Locate all items in the workspace.Items folder
 local itemsFolder = workspace:FindFirstChild("Items")
 local items = {}
 
--- Function to update the items table
-local function updateItems()
-    items = {}  -- Clear existing items
-
-    if itemsFolder then
-        for _, item in pairs(itemsFolder:GetChildren()) do
-            if item:IsA("Tool") then
-                items[item.Name] = item:FindFirstChild("Handle") -- Handle for tools
-            elseif item:IsA("BasePart") then
-                items[item.Name] = item -- Non-tool items
-            end
+if itemsFolder then
+    for _, item in pairs(itemsFolder:GetChildren()) do
+        if item:IsA("Tool") then
+            items[item.Name] = item:FindFirstChild("Handle") -- Handle for tools
+        elseif item:IsA("BasePart") then
+            items[item.Name] = item -- Non-tool items
         end
     end
 end
-
--- Continuously check for new items
-game:GetService("RunService").Heartbeat:Connect(function()
-    updateItems() -- Keep items updated
-end)
 
 -- Function to interact with the item
 local function grabitem(item)
@@ -51,36 +42,19 @@ local function grabitem(item)
     end
 end
 
--- Function to teleport and grab the item
-local function tpspeitem(item)
-    if item and humanoidRootPart and item:IsA("BasePart") then
-        humanoidRootPart.CFrame = item.CFrame -- Teleport
-        wait(1)
-        grabitem(item) -- Grab the item
-    else
-        Rayfield:Notify({
-            Title = "Item Not Found",
-            Content = "The item hasn't spawned yet!",
-            Duration = 2,
-        })
-    end
-end
+-- Create buttons for each item
 
--- Create buttons for each item dynamically
-local itemsList = {
-    "Requiem Arrow", "Hamon Breather", "Rokakaka Fruit", "Stone Rokakaka", "New Rokakaka",
-    "Corpse Part", "Sinner Soul", "Steel Ball", "Dio Diary", "Aja Mask", "Vampire Mask",
-    "Dio Bone", "Stand Arrow", "Cash Sack"
-}
-
-for _, itemName in pairs(itemsList) do
-    local item = itemsFolder:FindFirstChild(itemName) -- Get the item from the folder
-    if item then
-        TeleportTab:CreateButton({
-            Name = itemName,
-            Callback = function()
-                tpspeitem(item)
-            end
-        })
-    end
+local function tpspeitem()
+        if item and humanoidRootPart and item:IsA("") then
+            humanoidRootPart.CFrame = item.CFrame -- Teleport
+            wait(1)
+            grabitem(item.Parent or item) -- Grab the item
+        else
+            Rayfield:Notify({
+                Title = "Item Not Found",
+                Content = "Could not find or interact with ",
+                Duration = 2,
+            })
+        end
+    end,
 end
