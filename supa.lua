@@ -33,7 +33,7 @@ local Dropdown = TeleportTab:CreateDropdown({
     Name = "Items Dropdown",
     Options = {},  -- Start with an empty list
     CurrentOption = {},
-    MultipleOptions = true,
+    MultipleOptions = false,
     Flag = "ItemsDropdown",
     Callback = function(Options)
         -- Teleport to selected item when chosen
