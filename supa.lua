@@ -45,29 +45,35 @@ local function grabitem(item)
     end
 end
 
--- Function to create/update dropdown for items
+-- Create/update dropdown for items
 local function createItemDropdown()
-    -- Create a dropdown with current items
     local items = updateItems()
 
-    -- Clear existing dropdown items if any
-    if TeleportTab:GetDropdown("ItemDropdown") then
-        TeleportTab:GetDropdown("ItemDropdown"):ClearItems()
+    -- Create dropdown options from item names
+    local options = {}
+    for itemName in pairs(items) do
+        table.insert(options, itemName)
     end
 
+    -- Create or update the dropdown menu
     local dropdown = TeleportTab:CreateDropdown({
         Name = "Select Item",
-        Options = table.keys(items), -- Get the names of the items
-        Callback = function(itemName)
-            local item = items[itemName]
-            if item and humanoidRootPart and item:IsA("BasePart") then
-                humanoidRootPart.CFrame = item.CFrame -- Teleport
+        Options = options,
+        CurrentOption = {options[1]}, -- Set initial selection
+        MultipleOptions = false,
+        Flag = "ItemDropdown",
+        Callback = function(selectedItemNames)
+            local selectedItemName = selectedItemNames[1]
+            local selectedItem = items[selectedItemName]
+
+            if selectedItem and humanoidRootPart and selectedItem:IsA("BasePart") then
+                humanoidRootPart.CFrame = selectedItem.CFrame -- Teleport
                 wait(1)
-                grabitem(item.Parent or item) -- Grab the item
+                grabitem(selectedItem.Parent or selectedItem) -- Grab the item
             else
                 Rayfield:Notify({
                     Title = "Item Not Found",
-                    Content = "Could not find or interact with " .. itemName,
+                    Content = "Could not find or interact with " .. selectedItemName,
                     Duration = 2,
                 })
             end
@@ -83,12 +89,3 @@ TeleportTab:CreateButton({
 
 -- Initial call to create the dropdown
 createItemDropdown()
-
--- Helper function to get table keys
-function table.keys(t)
-    local keys = {}
-    for k in pairs(t) do
-        table.insert(keys, k)
-    end
-    return keys
-end
