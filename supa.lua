@@ -52,7 +52,7 @@ local Dropdown = TeleportTab:CreateDropdown({
     MultipleOptions = true,
     Callback = function(Options)
         -- Find the selected item and teleport
-        local selectedItemName = Options[1]
+        local selectedItemName = Options
         local selectedItem = items[selectedItemName]
         
         if selectedItem then
