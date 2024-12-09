@@ -71,7 +71,7 @@ local function grabitem(item)
     end
 end
 
--- Refresh button to update the dropdown options
+-- Button to refresh the dropdown options
 TeleportTab:CreateButton({
     Name = "Refresh Items",
     Callback = function()
