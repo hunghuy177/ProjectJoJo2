@@ -45,27 +45,46 @@ local function grabitem(item)
     end
 end
 
--- Update items regularly and create buttons
+-- Keep track of the previously created items to check for changes
+local lastItems = {}
+
+-- Update items regularly and create buttons if items change
 game:GetService("RunService").Heartbeat:Connect(function()
     local items = updateItems() -- Get updated list of items
-    TeleportTab:ClearButtons()  -- Clear previous buttons
-    
+
+    -- Check if items have changed (add new or removed items)
+    local itemsChanged = false
     for itemName, item in pairs(items) do
-        TeleportTab:CreateButton({
-            Name = itemName,
-            Callback = function()
-                if item and humanoidRootPart and item:IsA("BasePart") then
-                    humanoidRootPart.CFrame = item.CFrame -- Teleport
-                    wait(1)
-                    grabitem(item.Parent or item) -- Grab the item
-                else
-                    Rayfield:Notify({
-                        Title = "Item Not Found",
-                        Content = "Could not find or interact with " .. itemName,
-                        Duration = 2,
-                    })
-                end
-            end,
-        })
+        if not lastItems[itemName] then
+            itemsChanged = true
+            break
+        end
     end
+
+    if itemsChanged then
+        TeleportTab:ClearButtons()  -- Clear previous buttons
+
+        -- Create new buttons
+        for itemName, item in pairs(items) do
+            TeleportTab:CreateButton({
+                Name = itemName,
+                Callback = function()
+                    if item and humanoidRootPart and item:IsA("BasePart") then
+                        humanoidRootPart.CFrame = item.CFrame -- Teleport
+                        wait(1)
+                        grabitem(item.Parent or item) -- Grab the item
+                    else
+                        Rayfield:Notify({
+                            Title = "Item Not Found",
+                            Content = "Could not find or interact with " .. itemName,
+                            Duration = 2,
+                        })
+                    end
+                end,
+            })
+        end
+    end
+
+    -- Update the lastItems table
+    lastItems = items
 end)
