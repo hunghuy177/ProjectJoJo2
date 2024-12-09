@@ -11,19 +11,29 @@ local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
--- Locate all items in the workspace.Items folder
 local itemsFolder = workspace:FindFirstChild("Items")
 local items = {}
 
-if itemsFolder then
-    for _, item in pairs(itemsFolder:GetChildren()) do
-        if item:IsA("Tool") then
-            items[item.Name] = item:FindFirstChild("Handle") -- Handle for tools
-        elseif item:IsA("BasePart") then
-            items[item.Name] = item -- Non-tool items
+-- Function to update the items table
+local function updateItems()
+    items = {}  -- Clear existing items
+
+    if itemsFolder then
+        for _, item in pairs(itemsFolder:GetChildren()) do
+            if item:IsA("Tool") then
+                items[item.Name] = item:FindFirstChild("Handle") -- Handle for tools
+            elseif item:IsA("BasePart") then
+                items[item.Name] = item -- Non-tool items
+            end
         end
     end
 end
+
+-- Continuously check for new items
+game:GetService("RunService").Heartbeat:Connect(function()
+    updateItems() -- Keep items updated
+end)
+
 
 -- Function to interact with the item
 local function grabitem(item)
@@ -42,26 +52,19 @@ local function grabitem(item)
     end
 end
 
-
-for itemName, item in pairs(items) do
-    print itemName
-end
 -- Create buttons for each item
-for itemName, item in pairs(items) do
-    TeleportTab:CreateButton({
-        Name = itemName,
-        Callback = function()
-            if item and humanoidRootPart and item:IsA("BasePart") then
-                humanoidRootPart.CFrame = item.CFrame -- Teleport
-                wait(1)
-                grabitem(item.Parent or item) -- Grab the item
-            else
-                Rayfield:Notify({
-                    Title = "Item Not Found",
-                    Content = "Could not find or interact with " .. itemName,
-                    Duration = 2,
-                })
-            end
-        end,
-    })
+
+local function tpspeitem(item)
+        if item and humanoidRootPart and item:IsA("BasePart") then
+            humanoidRootPart.CFrame = item.CFrame -- Teleport
+            wait(1)
+            grabitem(item.Parent or item) -- Grab the item
+        else
+            Rayfield:Notify({
+                Title = "Item Not Found",
+                Content = "The item hasn't spawned yet!"
+                Duration = 2,
+            })
+        end
+    end,
 end
