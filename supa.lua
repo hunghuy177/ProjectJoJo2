@@ -34,7 +34,6 @@ game:GetService("RunService").Heartbeat:Connect(function()
     updateItems() -- Keep items updated
 end)
 
-
 -- Function to interact with the item
 local function grabitem(item)
     local clickBox = item:FindFirstChild("ClickBox") or item:FindFirstChild("Handle")
@@ -52,29 +51,36 @@ local function grabitem(item)
     end
 end
 
--- Create buttons for each item
-
-local function tpspeitem()
-        if item and humanoidRootPart and item:IsA("BasePart") then
-            humanoidRootPart.CFrame = item.CFrame -- Teleport
-            wait(1)
-            grabitem(item.Parent or item) -- Grab the item
-        else
-            Rayfield:Notify({
-                Title = "Item Not Found",
-                Content = "The item hasn't spawned yet!"
-                Duration = 2,
-            })
-        end
-    end,
+-- Function to teleport and grab the item
+local function tpspeitem(item)
+    if item and humanoidRootPart and item:IsA("BasePart") then
+        humanoidRootPart.CFrame = item.CFrame -- Teleport
+        wait(1)
+        grabitem(item) -- Grab the item
+    else
+        Rayfield:Notify({
+            Title = "Item Not Found",
+            Content = "The item hasn't spawned yet!",
+            Duration = 2,
+        })
+    end
 end
 
+-- Create buttons for each item dynamically
 local items = {
-    ["Requiem Arrow"],["Hamon Breather"]("Hamon Breather"),["Rokakaka Fruit"],["Stone Rokakaka"],["New Rokakaka"],["Corpse Part"],["Sinner Soul"],["Steel Ball"],["Dio Diary"],["Aja Mask"],["Vampire Mask"],["Dio Bone"],["Stand Arrow"],["Cash Sack"]
+    "Requiem Arrow", "Hamon Breather", "Rokakaka Fruit", "Stone Rokakaka", "New Rokakaka",
+    "Corpse Part", "Sinner Soul", "Steel Ball", "Dio Diary", "Aja Mask", "Vampire Mask",
+    "Dio Bone", "Stand Arrow", "Cash Sack"
 }
-for itemName, item in pairs(items) do
-    TeleportTab:CreateButton({
-        Name = itemName,
-        Callback = tpspeitem()
-    })
+
+for _, itemName in pairs(items) do
+    local item = itemsFolder:FindFirstChild(itemName) -- Get the item from the folder
+    if item then
+        TeleportTab:CreateButton({
+            Name = itemName,
+            Callback = function()
+                tpspeitem(item)
+            end
+        })
+    end
 end
