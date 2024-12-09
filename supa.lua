@@ -54,7 +54,7 @@ end
 
 -- Create buttons for each item
 
-local function tpspeitem(item)
+local function tpspeitem()
         if item and humanoidRootPart and item:IsA("BasePart") then
             humanoidRootPart.CFrame = item.CFrame -- Teleport
             wait(1)
@@ -67,4 +67,14 @@ local function tpspeitem(item)
             })
         end
     end,
+end
+
+local items = {
+    ["Requiem Arrow"],["Hamon Breather"]("Hamon Breather"),["Rokakaka Fruit"],["Stone Rokakaka"],["New Rokakaka"],["Corpse Part"],["Sinner Soul"],["Steel Ball"],["Dio Diary"],["Aja Mask"],["Vampire Mask"],["Dio Bone"],["Stand Arrow"],["Cash Sack"],
+}
+for itemName, item in pairs(items) do
+    TeleportTab:CreateButton({
+        Name = itemName,
+        Callback = tpspeitem()
+    })
 end
