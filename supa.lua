@@ -1,4 +1,4 @@
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))() 
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local Window = Rayfield:CreateWindow({
     Name = "Item Teleporter",
     LoadingTitle = "Teleport and Grab Items",
@@ -11,11 +11,12 @@ local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
--- Function to dynamically fetch items from workspace.Items
-local function updateItems()
-    local itemsFolder = workspace:FindFirstChild("Items")
-    local items = {}
+local itemsFolder = workspace:FindFirstChild("Items")
+local items = {}
 
+-- Function to update items dynamically
+local function updateItems()
+    items = {}
     if itemsFolder then
         for _, item in pairs(itemsFolder:GetChildren()) do
             if item:IsA("Tool") then
@@ -25,10 +26,35 @@ local function updateItems()
             end
         end
     end
-    return items
 end
 
--- Function to interact with the item
+-- Dropdown to show all items
+local Dropdown = TeleportTab:CreateDropdown({
+    Name = "Items Dropdown",
+    Options = {},  -- Start with an empty list
+    CurrentOption = {},
+    MultipleOptions = false,
+    Flag = "ItemsDropdown",
+    Callback = function(Options)
+        -- Teleport to selected item when chosen
+        local selectedItemName = Options[1]
+        local selectedItem = items[selectedItemName]
+        
+        if selectedItem then
+            humanoidRootPart.CFrame = selectedItem.CFrame -- Teleport to item
+            wait(1)
+            grabitem(selectedItem)  -- Interact with the item
+        else
+            Rayfield:Notify({
+                Title = "Item Not Found",
+                Content = "The item you selected is not available.",
+                Duration = 2,
+            })
+        end
+    end,
+})
+
+-- Function to grab item
 local function grabitem(item)
     local clickBox = item:FindFirstChild("ClickBox") or item:FindFirstChild("Handle")
     if clickBox then
@@ -45,47 +71,27 @@ local function grabitem(item)
     end
 end
 
--- Create/update dropdown for items
-local function createItemDropdown()
-    local items = updateItems()
-
-    -- Create dropdown options from item names
-    local options = {}
-    for itemName in pairs(items) do
-        table.insert(options, itemName)
-    end
-
-    -- Create or update the dropdown menu
-    local dropdown = TeleportTab:CreateDropdown({
-        Name = "Select Item",
-        Options = options,
-        CurrentOption = {options[1]}, -- Set initial selection
-        MultipleOptions = false,
-        Flag = "ItemDropdown",
-        Callback = function(selectedItemNames)
-            local selectedItemName = selectedItemNames[1]
-            local selectedItem = items[selectedItemName]
-
-            if selectedItem and humanoidRootPart and selectedItem:IsA("BasePart") then
-                humanoidRootPart.CFrame = selectedItem.CFrame -- Teleport
-                wait(1)
-                grabitem(selectedItem.Parent or selectedItem) -- Grab the item
-            else
-                Rayfield:Notify({
-                    Title = "Item Not Found",
-                    Content = "Could not find or interact with " .. selectedItemName,
-                    Duration = 2,
-                })
-            end
-        end,
-    })
-end
-
--- Button to refresh and update the item dropdown
+-- Refresh button to update the dropdown options
 TeleportTab:CreateButton({
     Name = "Refresh Items",
-    Callback = createItemDropdown,
+    Callback = function()
+        updateItems()  -- Refresh the item list
+        local options = {}
+        
+        -- Update the dropdown options with current items
+        for itemName, _ in pairs(items) do
+            table.insert(options, itemName)
+        end
+        
+        -- Update the dropdown with new options
+        Dropdown:Set(options)
+    end,
 })
 
--- Initial call to create the dropdown
-createItemDropdown()
+-- Initial population of dropdown with items
+updateItems()
+local initialOptions = {}
+for itemName, _ in pairs(items) do
+    table.insert(initialOptions, itemName)
+end
+Dropdown:Set(initialOptions)
