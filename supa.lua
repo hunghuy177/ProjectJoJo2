@@ -28,18 +28,24 @@ local function updateItems()
     end
 end
 
--- Function to grab the item
+-- Function to interact with the item (grab item)
 local function grabitem(item)
     local clickBox = item:FindFirstChild("ClickBox") or item:FindFirstChild("Handle")
     if clickBox then
         local clickDetector = clickBox:FindFirstChild("ClickDetector")
         if clickDetector then
-            fireclickdetector(clickDetector)
+            fireclickdetector(clickDetector)  -- Fires the click detector to interact with the item
+        else
+            Rayfield:Notify({
+                Title = "Interaction Failed",
+                Content = "ClickDetector not found on the item.",
+                Duration = 2,
+            })
         end
     else
         Rayfield:Notify({
             Title = "Interaction Failed",
-            Content = "Cannot interact with the item.",
+            Content = "Cannot find ClickBox or Handle for this item.",
             Duration = 2,
         })
     end
@@ -48,21 +54,21 @@ end
 -- Create Dropdown for items
 local Dropdown = TeleportTab:CreateDropdown({
     Name = "Items List",
-    Options = {},
-    MultipleOptions = false,
+    Options = {"Dio Bone", "Hamon Breather", "Requiem Arrow", "Rokakaka Fruit", "Stand Arrow", "Steel Ball", "Stone Rokakaka", "Vampire Mask", "Aja Mask", "Corpse Part", "Dio Diary", "New Rokakaka", "Sinners Soul", "Cash Sack"},
     CurrentOption = {"Stand Arrow"},
     Callback = function(Options)
-        local selectedItemName = Options[1]
+        local selectedItemName = Options
         local selectedItem = items[selectedItemName]
 
         if selectedItem then
+            -- Teleport the player to the selected item
             if selectedItem:IsA("BasePart") then
                 humanoidRootPart.CFrame = selectedItem.CFrame
             elseif selectedItem:IsA("Tool") and selectedItem:FindFirstChild("Handle") then
                 humanoidRootPart.CFrame = selectedItem.Handle.CFrame
             end
             wait(1)
-            grabitem(selectedItem)
+            grabitem(selectedItem)  -- Try to interact with the item (grab it)
         else
             Rayfield:Notify({
                 Title = "Item Not Found",
